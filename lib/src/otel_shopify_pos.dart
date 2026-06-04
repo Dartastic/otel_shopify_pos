@@ -2,7 +2,6 @@
 // Copyright 2025-2026 Mindful Software LLC d/b/a Dartastic.io, All rights reserved.
 
 import 'package:dartastic_opentelemetry/dartastic_opentelemetry.dart';
-import 'package:dartastic_opentelemetry_api/dartastic_opentelemetry_api.dart';
 
 import 'otel_shopify_pos_suppression.dart';
 
@@ -52,48 +51,60 @@ Future<T> tracedShopifyPOS<T>({
   final t = tracer ?? OTel.tracerProvider().getTracer('otel_shopify_pos');
   final span = t.startSpan('shopifypos $operation', kind: SpanKind.client);
   try {
-    span.setStringAttribute('rpc.system', 'shopify_pos');
+    span.addAttributes(
+        OTel.attributes([OTel.attributeString('rpc.system', 'shopify_pos')]));
     final r = await invoke();
     final res = r.result;
     if (res != null) {
       if (res.shopId != null) {
-        span.setStringAttribute('shopify.shop.id', res.shopId!);
+        span.addAttributes(OTel.attributes(
+            [OTel.attributeString('shopify.shop.id', res.shopId!)]));
       }
       if (res.locationId != null) {
-        span.setStringAttribute('shopify.location.id', res.locationId!);
+        span.addAttributes(OTel.attributes(
+            [OTel.attributeString('shopify.location.id', res.locationId!)]));
       }
       if (res.orderId != null) {
-        span.setStringAttribute('shopify.order.id', res.orderId!);
+        span.addAttributes(OTel.attributes(
+            [OTel.attributeString('shopify.order.id', res.orderId!)]));
       }
       if (res.posOrderId != null) {
-        span.setStringAttribute('shopify.pos.order.id', res.posOrderId!);
+        span.addAttributes(OTel.attributes(
+            [OTel.attributeString('shopify.pos.order.id', res.posOrderId!)]));
       }
       if (res.staffMember != null) {
-        span.setStringAttribute('shopify.staff.member', res.staffMember!);
+        span.addAttributes(OTel.attributes(
+            [OTel.attributeString('shopify.staff.member', res.staffMember!)]));
       }
       if (res.customerId != null) {
-        span.setStringAttribute('shopify.customer.id', res.customerId!);
+        span.addAttributes(OTel.attributes(
+            [OTel.attributeString('shopify.customer.id', res.customerId!)]));
       }
       if (res.amount != null) {
-        span.setDoubleAttribute('shopify.amount', res.amount!);
+        span.addAttributes(OTel.attributes(
+            [OTel.attributeDouble('shopify.amount', res.amount!)]));
       }
       if (res.currency != null) {
-        span.setStringAttribute('shopify.currency', res.currency!);
+        span.addAttributes(OTel.attributes(
+            [OTel.attributeString('shopify.currency', res.currency!)]));
       }
       if (res.statusCode != null) {
-        span.setIntAttribute('http.response.status_code', res.statusCode!);
+        span.addAttributes(OTel.attributes(
+            [OTel.attributeInt('http.response.status_code', res.statusCode!)]));
       }
       if (res.errorCode != null) {
-        span.setStringAttribute('shopifypos.error.code', res.errorCode!);
+        span.addAttributes(OTel.attributes(
+            [OTel.attributeString('shopifypos.error.code', res.errorCode!)]));
       }
-      final fail =
-          res.errorCode != null ||
+      final fail = res.errorCode != null ||
           (res.statusCode != null && res.statusCode! >= 400);
       if (fail) {
-        span.setStringAttribute(
-          ErrorResource.errorType.key,
-          res.errorCode ?? 'shopify_pos.error',
-        );
+        span.addAttributes(OTel.attributes([
+          OTel.attributeString(
+            ErrorResource.errorType.key,
+            res.errorCode ?? 'shopify_pos.error',
+          )
+        ]));
         span.setStatus(SpanStatusCode.Error, res.errorMessage);
       }
     }
